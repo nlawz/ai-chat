@@ -6,9 +6,11 @@ import {
   SparklesIcon,
   UndoIcon,
 } from '@/components/icons';
-import { SpreadsheetEditor } from '@/components/sheet-editor';
+import { DataSheetGridEditor } from '@/components/data-sheet-grid-editor';
+import { WebsetItemSheet } from '@/components/webset-item-sheet';
 import { parse, unparse } from 'papaparse';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 type Metadata = any;
 
@@ -16,13 +18,19 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
   kind: 'sheet',
   description: 'Useful for working with spreadsheets',
   initialize: async () => {},
-  onStreamPart: ({ setArtifact, streamPart }) => {
+  onStreamPart: ({ setArtifact, setMetadata, streamPart }) => {
     if (streamPart.type === 'data-sheetDelta') {
       setArtifact((draftArtifact) => ({
         ...draftArtifact,
         content: streamPart.data,
         isVisible: true,
         status: 'streaming',
+      }));
+    } else if (streamPart.type === 'data-websetMetadata') {
+      // Update metadata with webset information
+      setMetadata((prevMetadata: any) => ({
+        ...prevMetadata,
+        ...streamPart.data,
       }));
     }
   },
@@ -32,15 +40,45 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
     isCurrentVersion,
     onSaveContent,
     status,
+    metadata,
   }) => {
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+    const [selectedRowData, setSelectedRowData] = useState<Record<string, string> | null>(null);
+    const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
+
+    const handleRowSelect = (itemId: string, rowData: Record<string, string>) => {
+      console.log('[SheetArtifact] Row selected:', { itemId, rowData });
+      setSelectedItemId(itemId);
+      setSelectedRowData(rowData);
+      setIsItemSheetOpen(true);
+    };
+
+    const handleCloseItemSheet = () => {
+      setIsItemSheetOpen(false);
+      setSelectedItemId(null);
+      setSelectedRowData(null);
+    };
+
+    const websetId = metadata?.websetId || null;
+
     return (
-      <SpreadsheetEditor
-        content={content}
-        currentVersionIndex={currentVersionIndex}
-        isCurrentVersion={isCurrentVersion}
-        saveContent={onSaveContent}
-        status={status}
-      />
+      <>
+        <DataSheetGridEditor
+          content={content}
+          isReadOnly={!isCurrentVersion}
+          onSaveContent={onSaveContent}
+          onRowSelect={handleRowSelect}
+        />
+        {websetId && (
+          <WebsetItemSheet
+            open={isItemSheetOpen}
+            websetId={websetId}
+            rowData={selectedRowData}
+            itemId={selectedItemId}
+            onClose={handleCloseItemSheet}
+          />
+        )}
+      </>
     );
   },
   actions: [

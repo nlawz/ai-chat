@@ -17,4 +17,9 @@ export const chatModels: Array<ChatModel> = [
     name: 'Grok Reasoning',
     description: 'Uses advanced chain-of-thought reasoning for complex problems',
   },
+  {
+    id: 'gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    description: 'Google\'s most advanced AI model with exceptional reasoning capabilities',
+  },
 ];

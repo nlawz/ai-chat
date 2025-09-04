@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
 import type { Vote } from '@/lib/db/schema';
 import { DocumentToolResult } from './document';
-import { PencilEditIcon, SparklesIcon, LoaderIcon } from './icons';
+import { PencilEditIcon, SparklesIcon, LoaderIcon, ExaIcon } from './icons';
 import { Response } from './elements/response';
 import { MessageContent } from './elements/message';
 import {
@@ -186,8 +186,17 @@ const PurePreviewMessage = ({
                   <Tool key={toolCallId} defaultOpen={true}>
                     <ToolHeader type="tool-getWeather" state={state} />
                     <ToolContent>
-                      {state === 'input-available' && (
-                        <ToolInput input={part.input} />
+                      {(state === 'input-available' || state === 'output-available') && (
+                        <div className="space-y-2 p-4">
+                          <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+                            Location
+                          </h4>
+                          <div className="bg-muted/50 rounded-md p-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">Current location</span>
+                            </div>
+                          </div>
+                        </div>
                       )}
                       {state === 'output-available' && (
                         <ToolOutput
@@ -255,7 +264,7 @@ const PurePreviewMessage = ({
                   <Tool key={toolCallId} defaultOpen={true}>
                     <ToolHeader type="tool-requestSuggestions" state={state} />
                     <ToolContent>
-                      {state === 'input-available' && (
+                      {(state === 'input-available' || state === 'output-available') && (
                         <ToolInput input={part.input} />
                       )}
                       {state === 'output-available' && (
@@ -278,6 +287,216 @@ const PurePreviewMessage = ({
                       )}
                     </ToolContent>
                   </Tool>
+                );
+              }
+
+              if (type?.startsWith('tool-exaSearch')) {
+                const { toolCallId, state } = part as any;
+
+                return (
+                  <Tool key={toolCallId} defaultOpen={true}>
+                    <ToolHeader 
+                      type="tool-exaSearch" 
+                      state={state} 
+                      displayName="Web Search with Exa"
+                      icon={({ className }) => <ExaIcon size={16} />}
+                    />
+                    <ToolContent>
+                      {(state === 'input-available' || state === 'output-available') && (
+                        <div className="space-y-2 p-4">
+                          <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+                            Search Parameters
+                          </h4>
+                          <div className="bg-muted/50 rounded-md p-3 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground">Query:</span>
+                              <span className="text-sm font-medium">&quot;{(part as any).input?.query}&quot;</span>
+                            </div>
+                            {(part as any).input?.category && (part as any).input.category !== 'any' && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-muted-foreground">Category:</span>
+                                <span className="text-sm capitalize bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                  {(part as any).input.category}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-medium text-muted-foreground">Results:</span>
+                              <span className="text-sm">{(part as any).input?.numResults || 5}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {state === 'output-available' && (
+                        <ToolOutput
+                          output={
+                            'error' in (part as any).output ? (
+                              <div className="p-2 text-red-500 rounded border">
+                                Error: {String((part as any).output.error)}
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                {(part as any).output.results?.map((result: any, index: number) => (
+                                  <div key={index} className="border rounded-lg p-4 bg-muted/20">
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <h4 className="font-medium text-sm line-clamp-2">
+                                        <a 
+                                          href={result.url} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                        >
+                                          {result.title}
+                                        </a>
+                                      </h4>
+                                    </div>
+                                    {result.summary && (
+                                      <p className="text-sm text-muted-foreground mb-2">
+                                        {result.summary}
+                                      </p>
+                                    )}
+                                    {result.text && (
+                                      <p className="text-xs text-muted-foreground line-clamp-3">
+                                        {result.text}
+                                      </p>
+                                    )}
+                                    {result.highlights && result.highlights.length > 0 && (
+                                      <div className="mt-2">
+                                        <span className="inline-block text-xs font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded">
+                                          &quot;{result.highlights[0]}&quot;
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )
+                          }
+                          errorText={(part as any).state === 'output-error' ? (part as any).errorText : undefined}
+                        />
+                      )}
+                    </ToolContent>
+                  </Tool>
+                );
+              }
+
+              if (type?.startsWith('tool-exaResearch')) {
+                const { toolCallId, state } = part as any;
+
+                return (
+                  <Tool key={toolCallId} defaultOpen={true}>
+                    <ToolHeader 
+                      type="tool-exaResearch" 
+                      state={state} 
+                      displayName="Research with Exa AI"
+                      icon={({ className }) => <ExaIcon size={16} />}
+                    />
+                    <ToolContent>
+                      {(state === 'input-available' || state === 'output-available') && (
+                        <div className="space-y-2 p-4">
+                          <h4 className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+                            Research Instructions
+                          </h4>
+                          <div className="bg-muted/50 rounded-md p-3">
+                            <div className="text-sm">
+                              {(part as any).input?.instructions}
+                            </div>
+                            {(part as any).input?.output_schema && (
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                Structured output requested
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {state === 'output-available' && (
+                        <ToolOutput
+                          output={
+                            'error' in (part as any).output ? (
+                              <div className="p-2 text-red-500 rounded border">
+                                Error: {String((part as any).output.error)}
+                              </div>
+                            ) : (
+                              <div className="space-y-4">
+                                <div className="bg-muted/20 rounded-lg p-4">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <ExaIcon size={16} />
+                                    <span className="font-medium text-sm">Research Results</span>
+                                  </div>
+                                  
+                                  {(part as any).output.summary && (
+                                    <p className="text-sm text-muted-foreground mb-3">
+                                      {(part as any).output.summary}
+                                    </p>
+                                  )}
+                                  
+                                  {(part as any).output.data && (
+                                    <div className="bg-background rounded p-3 border">
+                                      <pre className="text-xs overflow-auto max-h-96">
+                                        {typeof (part as any).output.data === 'string' 
+                                          ? (part as any).output.data 
+                                          : JSON.stringify((part as any).output.data, null, 2)
+                                        }
+                                      </pre>
+                                    </div>
+                                  )}
+                                  
+                                  {(part as any).output.citations && (part as any).output.citations.length > 0 && (
+                                    <div className="mt-4">
+                                      <h5 className="font-medium text-sm mb-2">Sources ({(part as any).output.citations.length})</h5>
+                                      <div className="space-y-2">
+                                        {(part as any).output.citations.map((citation: any, index: number) => (
+                                          <div key={index} className="text-xs">
+                                            <a 
+                                              href={citation.url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                            >
+                                              {citation.title || citation.url}
+                                            </a>
+                                            {citation.snippet && (
+                                              <p className="text-muted-foreground mt-1">
+                                                {citation.snippet}
+                                              </p>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          }
+                          errorText={(part as any).state === 'output-error' ? (part as any).errorText : undefined}
+                        />
+                      )}
+                    </ToolContent>
+                  </Tool>
+                );
+              }
+
+              if (type?.startsWith('tool-exaWebsets')) {
+                const { toolCallId } = part as any;
+
+                if ((part as any).output && 'error' in (part as any).output) {
+                  return (
+                    <div
+                      key={toolCallId}
+                      className="p-4 text-red-500 bg-red-50 rounded-lg border border-red-200 dark:bg-red-950/50"
+                    >
+                      Error creating webset: {String((part as any).output.error)}
+                    </div>
+                  );
+                }
+
+                return (
+                  <DocumentPreview
+                    key={toolCallId}
+                    isReadonly={isReadonly}
+                    result={(part as any).output}
+                  />
                 );
               }
             })}

@@ -22,6 +22,7 @@ import { useAutoResume } from '@/hooks/use-auto-resume';
 import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
+import { ToolStatusIndicator } from './tool-status-indicator';
 
 export function Chat({
   id,
@@ -184,6 +185,9 @@ export function Chat({
         selectedVisibilityType={visibilityType}
         selectedModelId={initialChatModel}
       />
+
+      {/* Tool execution status indicator */}
+      <ToolStatusIndicator messages={messages} />
     </>
   );
 }

@@ -4,6 +4,7 @@ import {
   wrapLanguageModel,
 } from 'ai';
 import { gateway } from '@ai-sdk/gateway';
+import { google } from '@ai-sdk/google';
 import {
   artifactModel,
   chatModel,
@@ -30,5 +31,6 @@ export const myProvider = isTestEnvironment
         }),
         'title-model': gateway.languageModel('xai/grok-2-1212'),
         'artifact-model': gateway.languageModel('xai/grok-2-1212'),
+        'gemini-2.5-pro': google('gemini-2.5-pro'),
       },
     });

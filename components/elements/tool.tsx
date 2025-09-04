@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
   Collapsible,
@@ -32,6 +33,8 @@ export type ToolHeaderProps = {
   type: ToolUIPart['type'];
   state: ToolUIPart['state'];
   className?: string;
+  displayName?: string;
+  icon?: React.ComponentType<{ className?: string }>;
 };
 
 const getStatusBadge = (status: ToolUIPart['state']) => {
@@ -61,6 +64,8 @@ export const ToolHeader = ({
   className,
   type,
   state,
+  displayName,
+  icon: Icon,
   ...props
 }: ToolHeaderProps) => (
   <CollapsibleTrigger
@@ -71,8 +76,12 @@ export const ToolHeader = ({
     {...props}
   >
     <div className="flex items-center gap-2 min-w-0 flex-1">
-      <WrenchIcon className="size-4 text-muted-foreground shrink-0" />
-      <span className="font-medium text-sm truncate">{type}</span>
+      {Icon ? (
+        <Icon className="size-4 text-muted-foreground shrink-0" />
+      ) : (
+        <WrenchIcon className="size-4 text-muted-foreground shrink-0" />
+      )}
+      <span className="font-medium text-sm truncate">{displayName || type}</span>
     </div>
     <div className="flex items-center gap-2 shrink-0">
       {getStatusBadge(state)}
