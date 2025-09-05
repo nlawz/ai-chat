@@ -19,7 +19,7 @@ function PureSuggestedActions({
   selectedVisibilityType,
 }: SuggestedActionsProps) {
   const suggestedActions = [
-    'Find me 5 candidates in San Francisco that have at least 5 years of engineering experience',
+    'Find me 5 software engineer candidates in San Francisco that have at least 5 years of experience',
     'Find me the largest real estate holders in the Southern Los Angeles area',
     'Conduct research on Berkshire Hathaway and compile a comprehensive report',
     'Find me a quick update on the funding status of Anthropic',
