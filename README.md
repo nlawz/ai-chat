@@ -22,7 +22,6 @@
     -   Search: Quick web results for timely context and links
     -   Research: In‑depth long‑form research with structured summaries and citations
     -   Websets: Company and people search that populates spreadsheet artifacts
--
 -   [Next.js](https://nextjs.org) App Router
     -   Advanced routing for seamless navigation and performance
     -   React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
