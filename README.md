@@ -1,10 +1,10 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chat SDK</h1>
+<a href="https://exa-chatbot.vercel.app/">
+  <img alt="Exa Powered AI Chatbot" src="app/(chat)/opengraph-image.png">
+  <h1 align="center">Exa x Chat SDK</h1>
 </a>
 
 <p align="center">
-    Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
+    Exa-powered Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications — now with Exa Search, Research, and Websets integrations.
 </p>
 
 <p align="center">
@@ -18,21 +18,26 @@
 
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+-   [Exa Integrations](#exa-integrations)
+    -   Search: Quick web results for timely context and links
+    -   Research: In‑depth long‑form research with structured summaries and citations
+    -   Websets: Company and people search that populates spreadsheet artifacts
+-
+-   [Next.js](https://nextjs.org) App Router
+    -   Advanced routing for seamless navigation and performance
+    -   React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
+-   [AI SDK](https://sdk.vercel.ai/docs)
+    -   Unified API for generating text, structured objects, and tool calls with LLMs
+    -   Hooks for building dynamic chat and generative user interfaces
+    -   Supports xAI (default), OpenAI, Fireworks, and other model providers
+-   [shadcn/ui](https://ui.shadcn.com)
+    -   Styling with [Tailwind CSS](https://tailwindcss.com)
+    -   Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
+-   Data Persistence
+    -   [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
+    -   [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
+-   [Auth.js](https://authjs.dev)
+    -   Simple and secure authentication
 
 ## Model Providers
 
@@ -45,6 +50,27 @@ This template uses the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway) t
 **For non-Vercel deployments**: You need to provide an AI Gateway API key by setting the `AI_GATEWAY_API_KEY` environment variable in your `.env.local` file.
 
 With the [AI SDK](https://ai-sdk.dev/docs/introduction), you can also switch to direct LLM providers like [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://ai-sdk.dev/providers/ai-sdk-providers) with just a few lines of code.
+
+## Exa Integrations
+
+-   **Exa Search**: Quick web results for timely context and links.
+-   **Exa Research**: In‑depth research over long‑form text with structured summaries and citations.
+-   **Exa Websets**: Company and people search that populates live spreadsheet artifacts.
+
+### Setup: Exa API Key
+
+To enable Exa features, add your Exa API key to the environment:
+
+1. Visit the Exa Dashboard and log in: [dashboard.exa.ai/login](https://dashboard.exa.ai/login)
+2. Create or copy an API key.
+3. Add it to your `.env.local`:
+
+```bash
+# .env.local
+EXA_API_KEY=your_exa_api_key_here
+```
+
+4. Restart the dev server. On Vercel, set `EXA_API_KEY` in Project Settings → Environment Variables.
 
 ## Deploy Your Own
 
