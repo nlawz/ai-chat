@@ -20,6 +20,7 @@ export const myProvider = isTestEnvironment
         'chat-model-reasoning': reasoningModel,
         'title-model': titleModel,
         'artifact-model': artifactModel,
+        'gemini-2.5-pro': chatModel,
       },
     })
   : customProvider({

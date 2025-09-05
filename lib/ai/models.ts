@@ -1,4 +1,4 @@
-export const DEFAULT_CHAT_MODEL: string = 'chat-model';
+export const DEFAULT_CHAT_MODEL: string = 'gemini-2.5-pro';
 
 export interface ChatModel {
   id: string;
