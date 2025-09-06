@@ -1,12 +1,24 @@
 import { motion } from 'framer-motion';
 import { ExaIcon } from './icons';
+import { useSidebar } from './ui/sidebar';
 
 export const Greeting = () => {
+  const { state } = useSidebar();
+  
   return (
     <div
       key="overview"
       className="max-w-3xl mx-auto px-8 size-full flex flex-col relative"
     >
+       {/* Exa Icon centered lower on screen */}
+      <div 
+        className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-10 transition-[left] duration-200 ease-linear"
+        style={{
+          left: state === 'expanded' ? '16rem' : '0'
+        }}
+      >
+        <ExaIcon size={200} />
+      </div>
       {/* Greeting Content at top */}
       <div className="mt-20">
         <motion.div
@@ -29,10 +41,7 @@ export const Greeting = () => {
         </motion.div>
       </div>
       
-      {/* Exa Icon centered lower on screen */}
-      <div className="flex-1 flex items-center justify-center pointer-events-none opacity-10 pt-24">
-        <ExaIcon size={200} />
-      </div>
+     
     </div>
   );
 };
