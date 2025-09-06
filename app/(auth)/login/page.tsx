@@ -85,7 +85,7 @@ export default function Page() {
 
         {/* Right Column - Image Area */}
         <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative p-8">
-          <div className="w-full h-full bg-gradient-to-bl from-[#1f40ed]/10 to-[#1f40ed]/5 rounded-3xl flex items-center justify-center">
+          <div className="size-full bg-gradient-to-bl from-[#1f40ed]/10 to-[#1f40ed]/5 rounded-3xl flex items-center justify-center">
             <div className="text-center space-y-4 p-8">
                
                 <div className="space-y-2">
