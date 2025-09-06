@@ -47,9 +47,11 @@ function PureSuggestedActions({
                   parts: [{ type: 'text', text: suggestion }],
                 });
               }}
-              className="text-left w-full whitespace-normal p-3 flex items-center rounded-md"
+              className="text-left w-full whitespace-normal p-3 flex items-start rounded-md break-words overflow-hidden"
             >
-              {suggestedAction}
+              <span className="block leading-relaxed">
+                {suggestedAction}
+              </span>
             </Suggestion>
           </motion.div>
         ))}
