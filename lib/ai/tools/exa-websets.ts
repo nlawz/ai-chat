@@ -185,7 +185,9 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                 const pollResults = async () => {
                     const seenItemIds = new Set<string>();
 
-                    for (let attempt = 0; attempt < 15; attempt++) {
+                    let attempt = 0;
+                    while (true) {
+                        attempt++;
                         try {
                             // Check webset status
                             const statusRes = await fetch(`https://api.exa.ai/websets/v0/websets/${websetId}`, {
@@ -242,16 +244,36 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                                 );
                                             }
 
-                                            // Add criteria columns - get from evaluations
-                                            const evaluations = item.evaluations || [];
+                                            // Add criteria columns - map to evaluations; support both result/satisfied and criterion string/object
+                                            const evaluations = Array.isArray(item.evaluations) ? item.evaluations : [];
+                                            // helper: normalize strings for robust matching
+                                            const normalize = (s: any) => (typeof s === 'string' ? s : String(s ?? '')).trim().toLowerCase();
+                                            function getCriterionText(ev: any): string {
+                                                if (!ev) return '';
+                                                if (typeof ev.criterion === 'string') return ev.criterion;
+                                                if (ev.criterion && typeof ev.criterion.description === 'string') return ev.criterion.description;
+                                                return '';
+                                            }
+                                            function toCellValue(ev: any): 'Match' | 'Miss' | 'Unknown' {
+                                                if (!ev) return 'Unknown';
+                                                const satisfiedRaw = ev.satisfied ?? ev.result ?? '';
+                                                const satisfied = normalize(satisfiedRaw);
+                                                if (satisfied === 'yes' || satisfied === 'match' || satisfied === 'true') return 'Match';
+                                                if (satisfied === 'no' || satisfied === 'miss' || satisfied === 'false') return 'Miss';
+                                                return 'Unknown';
+                                            }
                                             for (const criterion of criteria) {
-                                                const evaluation = evaluations.find((e: any) => e.criterion?.description === criterion);
-                                                const value = evaluation?.result || 'Unknown';
+                                                const matched = evaluations.find((e: any) => normalize(getCriterionText(e)) === normalize(criterion));
+                                                const value = toCellValue(matched);
                                                 row.push(`"${value}"`);
                                             }
 
-                                            // Add satisfiesAllCriteria column
-                                            const satisfiesAll = evaluations.every((e: any) => e.result === 'Match');
+                                            // Add satisfiesAllCriteria column - true only if every requested criterion is a definite match
+                                            const satisfiesAll = criteria.every((criterion) => {
+                                                const matched = evaluations.find((e: any) => normalize(getCriterionText(e)) === normalize(criterion));
+                                                const cell = toCellValue(matched);
+                                                return cell === 'Match';
+                                            });
                                             row.push(`"${satisfiesAll}"`);
 
                                             // Add hidden columns
@@ -276,9 +298,9 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                         });
                                     }
 
-                                    // Check if complete
-                                    if (statusData.status === 'completed' || items.length >= count) {
-                                        console.log(`[exaWebsets] Polling complete - status: ${statusData.status}, items: ${items.length}`);
+                                    // Stop only when EXA reports idle
+                                    if (statusData.status === 'idle') {
+                                        console.log(`[exaWebsets] Polling complete - status: idle`);
                                         break;
                                     }
                                 } else {

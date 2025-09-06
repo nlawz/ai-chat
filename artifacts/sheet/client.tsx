@@ -1,3 +1,4 @@
+"use client";
 import { Artifact } from '@/components/create-artifact';
 import {
   CopyIcon,
@@ -13,6 +14,61 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 
 type Metadata = any;
+
+function SheetArtifactContent({
+  content,
+  currentVersionIndex,
+  isCurrentVersion,
+  onSaveContent,
+  status,
+  metadata,
+}: {
+  content: string;
+  currentVersionIndex: number;
+  isCurrentVersion: boolean;
+  onSaveContent: (content: string, debounce: boolean) => void;
+  status: 'streaming' | 'idle';
+  metadata: Metadata;
+}) {
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedRowData, setSelectedRowData] = useState<Record<string, string> | null>(null);
+  const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
+
+  const handleRowSelect = (itemId: string, rowData: Record<string, string>) => {
+    console.log('[SheetArtifact] Row selected:', { itemId, rowData });
+    setSelectedItemId(itemId);
+    setSelectedRowData(rowData);
+    setIsItemSheetOpen(true);
+  };
+
+  const handleCloseItemSheet = () => {
+    setIsItemSheetOpen(false);
+    setSelectedItemId(null);
+    setSelectedRowData(null);
+  };
+
+  const websetId = (metadata as any)?.websetId || null;
+
+  return (
+    <>
+      <DataSheetGridEditor
+        content={content}
+        isReadOnly={!isCurrentVersion}
+        onSaveContent={onSaveContent}
+        onRowSelect={handleRowSelect}
+      />
+      {websetId && (
+        <WebsetItemSheet
+          open={isItemSheetOpen}
+          websetId={websetId}
+          rowData={selectedRowData}
+          itemId={selectedItemId}
+          onClose={handleCloseItemSheet}
+        />
+      )}
+    </>
+  );
+}
 
 export const sheetArtifact = new Artifact<'sheet', Metadata>({
   kind: 'sheet',
@@ -34,53 +90,7 @@ export const sheetArtifact = new Artifact<'sheet', Metadata>({
       }));
     }
   },
-  content: ({
-    content,
-    currentVersionIndex,
-    isCurrentVersion,
-    onSaveContent,
-    status,
-    metadata,
-  }) => {
-    const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-    const [selectedRowData, setSelectedRowData] = useState<Record<string, string> | null>(null);
-    const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
-
-    const handleRowSelect = (itemId: string, rowData: Record<string, string>) => {
-      console.log('[SheetArtifact] Row selected:', { itemId, rowData });
-      setSelectedItemId(itemId);
-      setSelectedRowData(rowData);
-      setIsItemSheetOpen(true);
-    };
-
-    const handleCloseItemSheet = () => {
-      setIsItemSheetOpen(false);
-      setSelectedItemId(null);
-      setSelectedRowData(null);
-    };
-
-    const websetId = metadata?.websetId || null;
-
-    return (
-      <>
-        <DataSheetGridEditor
-          content={content}
-          isReadOnly={!isCurrentVersion}
-          onSaveContent={onSaveContent}
-          onRowSelect={handleRowSelect}
-        />
-        {websetId && (
-          <WebsetItemSheet
-            open={isItemSheetOpen}
-            websetId={websetId}
-            rowData={selectedRowData}
-            itemId={selectedItemId}
-            onClose={handleCloseItemSheet}
-          />
-        )}
-      </>
-    );
-  },
+  content: SheetArtifactContent,
   actions: [
     {
       icon: <UndoIcon size={18} />,

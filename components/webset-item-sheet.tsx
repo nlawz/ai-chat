@@ -141,10 +141,19 @@ export const WebsetItemSheet: React.FC<WebsetItemSheetProps> = ({
                             Criteria Evaluations
                         </h3>
                         <ul className="space-y-4">
-                            {evaluations.map((ev) => {
-                                const satisfied = (
-                                    ev.satisfied || "unknown"
-                                ).toLowerCase();
+                            {evaluations.map((ev, idx) => {
+                                const raw = ev?.satisfied ?? ev?.result ?? 'unknown';
+                                const normalized = String(raw).toLowerCase();
+                                const satisfied =
+                                    normalized === 'match' || normalized === 'true'
+                                        ? 'yes'
+                                        : normalized === 'miss' || normalized === 'false'
+                                          ? 'no'
+                                          : normalized;
+                                const criterionText =
+                                    typeof ev?.criterion === 'string'
+                                        ? ev.criterion
+                                        : ev?.criterion?.description ?? 'Criterion';
                                 const Icon =
                                     satisfied === "yes"
                                         ? CheckCircleIcon
@@ -159,14 +168,14 @@ export const WebsetItemSheet: React.FC<WebsetItemSheetProps> = ({
                                           : "text-gray-600";
                                 return (
                                     <li
-                                        key={ev.criterion}
+                                        key={criterionText || idx}
                                         className="space-y-1">
                                         <div className="flex items-start gap-2">
                                             <Icon
                                                 className={`${iconColor} h-4 w-4 mt-0.5`}
                                             />
                                             <span className="font-medium">
-                                                {ev.criterion}
+                                                {criterionText}
                                             </span>
                                         </div>
                                         {ev.reasoning && (
