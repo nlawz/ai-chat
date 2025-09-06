@@ -200,18 +200,47 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                 const statusData = await statusRes.json();
                                 console.log(`[exaWebsets] Status check ${attempt + 1}:`, statusData.status);
 
-                                // Fetch current items
-                                const itemsRes = await fetch(`https://api.exa.ai/websets/v0/websets/${websetId}/items`, {
-                                    headers: {
-                                        "x-api-key": process.env.EXA_API_KEY!,
-                                    },
-                                });
+                                // Fetch current items with pagination support
+                                let allItems: any[] = [];
+                                let cursor: string | null = null;
+                                let hasMoreItems = true;
+                                let pageCount = 0;
 
-                                if (itemsRes.ok) {
-                                    const itemsData = await itemsRes.json();
-                                    console.log(`[exaWebsets] Items response:`, itemsData);
-                                    const items = itemsData.data || [];
-                                    console.log(`[exaWebsets] Found ${items.length} items`);
+                                while (hasMoreItems) {
+                                    pageCount++;
+                                    const itemsUrl: string = `https://api.exa.ai/websets/v0/websets/${websetId}/items${cursor ? `?cursor=${cursor}` : ''}`;
+                                    
+                                    const itemsRes: Response = await fetch(itemsUrl, {
+                                        headers: {
+                                            "x-api-key": process.env.EXA_API_KEY!,
+                                        },
+                                    });
+
+                                    if (itemsRes.ok) {
+                                        const itemsData: any = await itemsRes.json();
+                                        console.log(`[exaWebsets] Items page ${pageCount} response:`, itemsData);
+                                        
+                                        const pageItems = itemsData.data || [];
+                                        allItems = allItems.concat(pageItems);
+                                        
+                                        // Check for more pages
+                                        hasMoreItems = itemsData.hasMore === true;
+                                        cursor = itemsData.nextCursor || null;
+                                        
+                                        console.log(`[exaWebsets] Page ${pageCount}: ${pageItems.length} items, total: ${allItems.length}, hasMore: ${hasMoreItems}`);
+                                        
+                                        if (!hasMoreItems) {
+                                            break;
+                                        }
+                                    } else {
+                                        console.error(`[exaWebsets] Items page ${pageCount} API call failed:`, itemsRes.status, await itemsRes.text());
+                                        break;
+                                    }
+                                }
+
+                                if (allItems.length > 0) {
+                                    const items = allItems;
+                                    console.log(`[exaWebsets] Found ${items.length} total items across ${pageCount} pages`);
 
                                     // Process new items
                                     let hasNewItems = false;
@@ -297,14 +326,14 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                             transient: true,
                                         });
                                     }
-
-                                    // Stop only when EXA reports idle
-                                    if (statusData.status === 'idle') {
-                                        console.log(`[exaWebsets] Polling complete - status: idle`);
-                                        break;
-                                    }
                                 } else {
-                                    console.error(`[exaWebsets] Items API call failed:`, itemsRes.status, await itemsRes.text());
+                                    console.log(`[exaWebsets] No items found in current poll`);
+                                }
+
+                                // Stop only when EXA reports idle
+                                if (statusData.status === 'idle') {
+                                    console.log(`[exaWebsets] Polling complete - status: idle`);
+                                    break;
                                 }
                             } else {
                                 console.error(`[exaWebsets] Status API call failed:`, statusRes.status, await statusRes.text());

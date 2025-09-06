@@ -59,17 +59,47 @@ export async function listExaWebsetItems(websetId: string) {
     const apiKey = process.env.EXA_API_KEY;
     if (!apiKey) throw new Error("EXA_API_KEY not set");
 
-    const url = `https://api.exa.ai/websets/v0/websets/${websetId}/items`;
-    const res = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-        },
-        cache: "no-store",
-    });
+    let allItems: any[] = [];
+    let cursor: string | null = null;
+    let hasMore = true;
+    let pageCount = 0;
 
-    console.log("[listExaWebsetItems] Response", res.status);
-    const json = await res.json();
-    return json; // expected shape { data: [...] }
+    while (hasMore) {
+        pageCount++;
+        const url: string = `https://api.exa.ai/websets/v0/websets/${websetId}/items${cursor ? `?cursor=${cursor}` : ''}`;
+        console.log(`[listExaWebsetItems] Fetching page ${pageCount}${cursor ? ` with cursor ${cursor}` : ''}`);
+        
+        const res: Response = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            cache: "no-store",
+        });
+
+        console.log(`[listExaWebsetItems] Page ${pageCount} response`, res.status);
+        
+        if (!res.ok) {
+            throw new Error(`Failed to fetch webset items: ${res.status} ${res.statusText}`);
+        }
+        
+        const json: any = await res.json();
+        
+        // Add items from this page
+        const items = json.data || [];
+        allItems = allItems.concat(items);
+        console.log(`[listExaWebsetItems] Page ${pageCount}: ${items.length} items, total: ${allItems.length}`);
+        
+        // Check for more pages
+        hasMore = json.hasMore === true;
+        cursor = json.nextCursor || null;
+        
+        if (!hasMore) {
+            console.log(`[listExaWebsetItems] Completed pagination - total items: ${allItems.length}`);
+            break;
+        }
+    }
+
+    return { data: allItems, hasMore: false }; // Return all items with hasMore: false since we've fetched everything
 }
 
