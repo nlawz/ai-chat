@@ -67,7 +67,7 @@ export async function listExaWebsetItems(websetId: string) {
     while (hasMore) {
         pageCount++;
         const url: string = `https://api.exa.ai/websets/v0/websets/${websetId}/items${cursor ? `?cursor=${cursor}` : ''}`;
-        console.log(`[listExaWebsetItems] Fetching page ${pageCount}${cursor ? ` with cursor ${cursor}` : ''}`);
+        // console.log(`[listExaWebsetItems] Fetching page ${pageCount}${cursor ? ` with cursor ${cursor}` : ''}`);
         
         const res: Response = await fetch(url, {
             headers: {
@@ -77,7 +77,7 @@ export async function listExaWebsetItems(websetId: string) {
             cache: "no-store",
         });
 
-        console.log(`[listExaWebsetItems] Page ${pageCount} response`, res.status);
+        // console.log(`[listExaWebsetItems] Page ${pageCount} response`, res.status);
         
         if (!res.ok) {
             throw new Error(`Failed to fetch webset items: ${res.status} ${res.statusText}`);
@@ -88,7 +88,7 @@ export async function listExaWebsetItems(websetId: string) {
         // Add items from this page
         const items = json.data || [];
         allItems = allItems.concat(items);
-        console.log(`[listExaWebsetItems] Page ${pageCount}: ${items.length} items, total: ${allItems.length}`);
+       //  console.log(`[listExaWebsetItems] Page ${pageCount}: ${items.length} items, total: ${allItems.length}`);
         
         // Check for more pages
         hasMore = json.hasMore === true;
