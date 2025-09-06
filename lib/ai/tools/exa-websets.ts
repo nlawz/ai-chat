@@ -211,7 +211,7 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                     const itemsData = await itemsRes.json();
                                     console.log(`[exaWebsets] Items response:`, itemsData);
                                     const items = itemsData.data || [];
-                                    console.log(`[exaWebsets] Found ${items.length} items (hasMore=${itemsData.hasMore})`);
+                                    console.log(`[exaWebsets] Found ${items.length} items`);
 
                                     // Process new items
                                     let hasNewItems = false;
@@ -286,99 +286,6 @@ export const exaWebsets = ({ session, dataStream }: ExaWebsetsProps) =>
                                             currentCsv += row.join(',') + '\n';
                                             const itemName = mode === 'company' ? company.name : person.name;
                                             console.log(`[exaWebsets] Added item: ${itemName}`);
-                                        }
-                                    }
-
-                                    // Paginate if necessary
-                                    if (itemsData.hasMore && itemsData.nextCursor) {
-                                        let cursor: string | null = itemsData.nextCursor;
-                                        while (cursor) {
-                                            const url = new URL(`https://api.exa.ai/websets/v0/websets/${websetId}/items`);
-                                            url.searchParams.set('cursor', cursor);
-                                            const pageRes = await fetch(url.toString(), {
-                                                headers: {
-                                                    "x-api-key": process.env.EXA_API_KEY!,
-                                                },
-                                            });
-                                            if (!pageRes.ok) {
-                                                console.error(`[exaWebsets] Items pagination failed:`, pageRes.status, await pageRes.text());
-                                                break;
-                                            }
-                                            const page = await pageRes.json();
-                                            const pageItems = page.data || [];
-                                            console.log(`[exaWebsets] Items page -> count=${pageItems.length}, hasMore=${page.hasMore}`);
-                                            for (const item of pageItems) {
-                                                if (!seenItemIds.has(item.id)) {
-                                                    seenItemIds.add(item.id);
-                                                    hasNewItems = true;
-
-                                                    // Create row data
-                                                    const row: string[] = [];
-                                                    const props = item.properties || {};
-                                                    const company = props.company || {};
-                                                    const person = props.person || {};
-
-                                                    if (mode === 'company') {
-                                                        row.push(
-                                                            `"${(company.name || '').replace(/"/g, '""')}"`,
-                                                            `"${(props.url || '').replace(/"/g, '""')}"`,
-                                                            `"${(props.description || '').replace(/"/g, '""')}"`,
-                                                        );
-                                                    } else {
-                                                        // Person mode: name, url, description, position, company, location
-                                                        row.push(
-                                                            `"${(person.name || '').replace(/"/g, '""')}"`,
-                                                            `"${(props.url || '').replace(/"/g, '""')}"`,
-                                                            `"${(props.description || '').replace(/"/g, '""')}"`,
-                                                            `"${(person.position || '').replace(/"/g, '""')}"`,
-                                                            `"${(person.company?.name || '').replace(/"/g, '""')}"`,
-                                                            `"${(person.location || '').replace(/"/g, '""')}"`,
-                                                        );
-                                                    }
-
-                                                    // Add criteria columns - map to evaluations; support both result/satisfied and criterion string/object
-                                                    const evaluations = Array.isArray(item.evaluations) ? item.evaluations : [];
-                                                    const normalize = (s: any) => (typeof s === 'string' ? s : String(s ?? '')).trim().toLowerCase();
-                                                    function getCriterionText(ev: any): string {
-                                                        if (!ev) return '';
-                                                        if (typeof ev.criterion === 'string') return ev.criterion;
-                                                        if (ev.criterion && typeof ev.criterion.description === 'string') return ev.criterion.description;
-                                                        return '';
-                                                    }
-                                                    function toCellValue(ev: any): 'Match' | 'Miss' | 'Unknown' {
-                                                        if (!ev) return 'Unknown';
-                                                        const satisfiedRaw = ev.satisfied ?? ev.result ?? '';
-                                                        const satisfied = normalize(satisfiedRaw);
-                                                        if (satisfied === 'yes' || satisfied === 'match' || satisfied === 'true') return 'Match';
-                                                        if (satisfied === 'no' || satisfied === 'miss' || satisfied === 'false') return 'Miss';
-                                                        return 'Unknown';
-                                                    }
-                                                    for (const criterion of criteria) {
-                                                        const matched = evaluations.find((e: any) => normalize(getCriterionText(e)) === normalize(criterion));
-                                                        const value = toCellValue(matched);
-                                                        row.push(`"${value}"`);
-                                                    }
-
-                                                    // Add satisfiesAllCriteria column - true only if every requested criterion is a definite match
-                                                    const satisfiesAll = criteria.every((criterion) => {
-                                                        const matched = evaluations.find((e: any) => normalize(getCriterionText(e)) === normalize(criterion));
-                                                        const cell = toCellValue(matched);
-                                                        return cell === 'Match';
-                                                    });
-                                                    row.push(`"${satisfiesAll}"`);
-
-                                                    // Add hidden columns
-                                                    const pictureUrl = mode === 'company' 
-                                                        ? (company.logoUrl || '')
-                                                        : (person.pictureUrl || '');
-                                                    row.push(`"${pictureUrl.replace(/"/g, '""')}"`);
-                                                    row.push(`"${item.id}"`);
-
-                                                    currentCsv += row.join(',') + '\n';
-                                                }
-                                            }
-                                            if (!page.hasMore || !page.nextCursor) break;
-                                            cursor = page.nextCursor;
                                         }
                                     }
 
