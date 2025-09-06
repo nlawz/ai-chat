@@ -28,16 +28,15 @@ function PureSuggestedActions({
   return (
     <div 
       data-testid="suggested-actions" 
-      className="flex gap-3 w-full overflow-x-auto pb-2 scrollbar-hide"
+      className="flex flex-col gap-3 w-full"
     >
         {suggestedActions.map((suggestedAction, index) => (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ delay: 0.05 * index }}
             key={suggestedAction}
-            className="flex-shrink-0"
           >
             <Suggestion
               suggestion={suggestedAction}
@@ -48,7 +47,7 @@ function PureSuggestedActions({
                   parts: [{ type: 'text', text: suggestion }],
                 });
               }}
-              className="text-left w-72 h-20 whitespace-normal p-3 flex items-center rounded-md"
+              className="text-left w-full whitespace-normal p-3 flex items-center rounded-md"
             >
               {suggestedAction}
             </Suggestion>
