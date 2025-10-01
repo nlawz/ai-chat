@@ -53,6 +53,7 @@ export const regularPrompt =
    b) Use the tool(s) by writing <tool_call>tool_name(parameters)</tool_call>
    c) Wait for the <tool_result> before proceeding
    d) Analyze the result and determine the next action
+   e) ALWAYS UPDATE YOUR TO DO LIST ALONG THE WAY. At each action, mark them off as completed.
 
 4. Final Response:
    After executing all steps of your plan, provide a comprehensive response to the user's request. Include a summary of actions taken and results achieved, and be sure to update any final to-dos or mark the list as isDone.
