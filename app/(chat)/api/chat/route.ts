@@ -26,6 +26,7 @@ import { getWeather } from '@/lib/ai/tools/get-weather';
 import { exaSearch } from '@/lib/ai/tools/exa-search';
 import { exaResearch } from '@/lib/ai/tools/exa-research';
 import { exaWebsets } from '@/lib/ai/tools/exa-websets';
+import { createTodosTool, updateTodosTool } from '@/lib/ai/tools/todo-planner';
 import { isProductionEnvironment } from '@/lib/constants';
 import { myProvider } from '@/lib/ai/providers';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
@@ -170,6 +171,8 @@ export async function POST(request: Request) {
                   'exaSearch',
                   'exaResearch',
                   'exaWebsets',
+                  'createTodos',
+                  'updateTodos',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           tools: {
@@ -183,6 +186,8 @@ export async function POST(request: Request) {
             exaSearch,
             exaResearch: exaResearch({ session, dataStream }),
             exaWebsets: exaWebsets({ session, dataStream }),
+            createTodos: createTodosTool({ chatId: id, dataStream }),
+            updateTodos: updateTodosTool({ chatId: id, dataStream }),
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,

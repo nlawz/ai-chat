@@ -8,8 +8,8 @@ import { SessionProvider } from 'next-auth/react';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://exa-chatbot.vercel.app'),
-  title: 'Exa Chat',
-  description: 'Chat powered by Exa Search',
+  title: 'AI Chat',
+  description: 'AI Chat',
 };
 
 export const viewport = {

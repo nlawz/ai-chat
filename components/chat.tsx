@@ -23,6 +23,8 @@ import { ChatSDKError } from '@/lib/errors';
 import type { Attachment, ChatMessage } from '@/lib/types';
 import { useDataStream } from './data-stream-provider';
 import { ToolStatusIndicator } from './tool-status-indicator';
+import { TodoBar } from './todo-bar';
+import { updateTodos, clearTodoPlan } from '@/lib/actions/store-temp-plan';
 
 export function Chat({
   id,
@@ -148,7 +150,20 @@ export function Chat({
           isArtifactVisible={isArtifactVisible}
         />
 
-        <div className="sticky bottom-0 flex gap-2 px-4 pb-4 mx-auto w-full bg-background md:pb-6 md:max-w-3xl z-[1] border-t-0">
+        <div className="sticky bottom-0 flex flex-col gap-2 px-4 pb-4 mx-auto w-full bg-background md:pb-6 md:max-w-3xl z-[1] border-t-0">
+          <TodoBar
+            chatId={id}
+            isAgentActive={status === 'submitted' || status === 'streaming'}
+            onToggle={async (todoId, isDone) => {
+              await updateTodos(
+                id,
+                [{ type: isDone ? 'complete' : 'uncomplete', id: todoId }],
+              );
+            }}
+            onClear={async () => {
+              await clearTodoPlan(id);
+            }}
+          />
           {!isReadonly && (
             <MultimodalInput
               chatId={id}

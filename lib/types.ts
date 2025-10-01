@@ -5,6 +5,7 @@ import type { updateDocument } from './ai/tools/update-document';
 import type { requestSuggestions } from './ai/tools/request-suggestions';
 import type { exaResearch } from './ai/tools/exa-research';
 import type { exaWebsets } from './ai/tools/exa-websets';
+import type { createTodosTool, updateTodosTool } from './ai/tools/todo-planner';
 import type { InferUITool, UIMessage } from 'ai';
 
 import type { ArtifactKind } from '@/components/artifact';
@@ -33,6 +34,9 @@ type exaWebsetsTool = InferUITool<
   ReturnType<typeof exaWebsets>
 >;
 
+type createTodosTool = InferUITool<ReturnType<typeof createTodosTool>>;
+type updateTodosTool = InferUITool<ReturnType<typeof updateTodosTool>>;
+
 export type ChatTools = {
   getWeather: weatherTool;
   createDocument: createDocumentTool;
@@ -40,6 +44,8 @@ export type ChatTools = {
   requestSuggestions: requestSuggestionsTool;
   exaResearch: exaResearchTool;
   exaWebsets: exaWebsetsTool;
+  createTodos: createTodosTool;
+  updateTodos: updateTodosTool;
 };
 
 export type CustomUIDataTypes = {
@@ -59,6 +65,20 @@ export type CustomUIDataTypes = {
     query: string;
     mode: 'company' | 'person';
     criteria: string[];
+  };
+  todoReplace: {
+    chatId: string;
+    title?: string;
+    items: Array<{ id: string; text: string; isDone: boolean }>;
+  };
+  todoUpdate: {
+    chatId: string;
+    title?: string;
+    operations: Array<any>;
+    items: Array<{ id: string; text: string; isDone: boolean }>;
+  };
+  todoClear: {
+    chatId: string;
   };
 };
 
