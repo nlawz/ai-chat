@@ -155,9 +155,24 @@ export async function POST(request: Request) {
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
+        // Extract user's text from the current message
+        const userRequestText = message.parts
+          .filter((part) => part.type === 'text')
+          .map((part) => ('text' in part ? part.text : ''))
+          .join(' ');
+
+        // Get base system prompt and replace {{USER_REQUEST}} placeholder
+        const basePrompt = systemPrompt({ selectedChatModel, requestHints });
+        const finalSystemPrompt = basePrompt.replace('{{USER_REQUEST}}', userRequestText);
+        
+        console.log('=== SYSTEM PROMPT ===');
+        console.log('User Request Text:', userRequestText);
+        console.log('Final System Prompt:', finalSystemPrompt);
+        console.log('===================');
+
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
+          system: finalSystemPrompt,
           messages: convertToModelMessages(uiMessages),
           stopWhen: stepCountIs(25),
           experimental_activeTools:
