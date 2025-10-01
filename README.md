@@ -1,6 +1,5 @@
-<a href="https://exa-chatbot.vercel.app/">
-  <img alt="Exa Powered AI Chatbot" src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Exa x Chat SDK</h1>
+<a href="https://todo-chatbot.vercel.app/">
+  <h1 align="center">Chat SDK</h1>
 </a>
 
 <p align="center">
